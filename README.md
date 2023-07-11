@@ -1,7 +1,8 @@
 # Deploy Exercise Counting with YOLOv8 on Jetson
 
+![result 00_00_00-00_00_30](https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/d5657aa5-5a61-4451-9adb-7f9fbd395a13)
 
-https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/a8d1fcfc-dbeb-45c3-b9dc-7389dea1222c
+
 
 
 The application is a pose estimation demo for exercise counting with YOLOv8. 
