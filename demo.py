@@ -165,12 +165,13 @@ def put_text(frame, exercise, count, fps, redio):
         (255, 255, 255), thickness=int(2 * redio), lineType=cv2.LINE_AA
     )
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='yolov8s-pose.pt', type=str, help='path to model weight')
     parser.add_argument('--sport', default='squat', type=str, help='Currently supported "sit-up", "pushup" and "squat"')
     parser.add_argument('--input', default="./inputs/squat.mp4", type=str, help='path to input video')
-    parser.add_argument('--save_dir', default='./outputs', type=str, help='path to save output')
+    parser.add_argument('--save_dir', default=None, type=str, help='path to save output')
     parser.add_argument('--show', default=True, type=bool, help='show the result')
     args = parser.parse_args()
     return args
@@ -194,14 +195,15 @@ def main():
             datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         fps = cap.get(cv2.CAP_PROP_FPS)
         size = (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)))
-        output = cv2.VideoWriter(os.path.join(save_dir, 'result.avi'), fourcc, fps, size)
+        output = cv2.VideoWriter(os.path.join(save_dir, 'result.mp4'), fourcc, fps, size)
 
     # Set variables to record motion status
     reaching = False
     reaching_last = False
+    state_keep = False
     counter = 0
 
     # Loop through the video frames
@@ -215,6 +217,9 @@ def main():
 
             # Run YOLOv8 inference on the frame
             results = model(frame)
+            if results[0].keypoints.shape[1] == 0:
+                print('No Object!')
+                continue
 
             # Get hyperparameters
             left_points_idx = sport_list[args.sport]['left_points_idx']
@@ -228,13 +233,14 @@ def main():
                 reaching = True
             if angle > sport_list[args.sport]['relaxing']:
                 reaching = False
+
             if reaching != reaching_last:
-                if not reaching_last:
+                reaching_last = reaching
+                if reaching:
+                    state_keep = True
+                if not reaching and state_keep:
                     counter += 1
-                if reaching_last:
-                    reaching_last = False
-                else:
-                    reaching_last = True
+                    state_keep = False
 
             # Visualize the results on the frame
             annotated_frame = plot(
