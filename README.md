@@ -1,5 +1,7 @@
 # Deploy Exercise Counting with YOLOv8 on Jetson
 
+[result.avi](resource%2Fresult.avi)
+
 The application is a pose estimation demo for exercise counting with YOLOv8. 
 It relies on YOLOv8-Pose.
 This document also describes how to deploy the algorithm to edge computing device 
@@ -50,5 +52,5 @@ git clone https://github.com/yuyoujiang/exercise-counting-with-YOLOv8.git
 
 ## References
 
-[https://github.com/ultralytics/](https://github.com/ultralytics/)
+[https://github.com/ultralytics/](https://github.com/ultralytics/)  
 [https://wiki.seeedstudio.com](https://wiki.seeedstudio.com/YOLOv8-DeepStream-TRT-Jetson/)
