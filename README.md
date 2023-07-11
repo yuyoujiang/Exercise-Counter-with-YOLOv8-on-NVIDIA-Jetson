@@ -50,7 +50,7 @@ git clone https://github.com/yuyoujiang/exercise-counting-with-YOLOv8.git
 
 - Download favorite model weights [(Refer to here)](https://docs.ultralytics.com/tasks/pose/#models).
 - Prepare a video to be tested, such as [(Refer to here)](https://github.com/yuyoujiang/test_video).
-- Then run [demo.py](./demo.py) to view the counting results.
+- Then run [demo.py](./demo.py) to view the counting results `python demo.py --model yolov8s-pose.pt`.
 
 
 ## References

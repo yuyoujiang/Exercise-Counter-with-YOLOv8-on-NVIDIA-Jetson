@@ -182,7 +182,10 @@ def main():
     # Load the YOLOv8 model
     model = YOLO(args.model)
     # Open the video file
-    cap = cv2.VideoCapture(args.input)
+    if args.input.isnumeric():
+        cap = cv2.VideoCapture(int(args.input))
+    else:
+        cap = cv2.VideoCapture(args.input)
 
     # For save result
     if args.save_dir is not None:
