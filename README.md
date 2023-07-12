@@ -1,57 +1,124 @@
-# Deploy Exercise Counting with YOLOv8 on Jetson
+# Exercise Counter with YOLOv8 on NVIDIA Jetson
 
 ![result 00_00_00-00_00_30](https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/d5657aa5-5a61-4451-9adb-7f9fbd395a13)
 
+This is a pose estimation demo application for exercise counting with YOLOv8 using [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose) model. 
 
+This has been tested and deployed on a [reComputer Jetson J4011](https://www.seeedstudio.com/reComputer-J4011-p-5585.html?queryID=7e0c2522ee08fd79748dfc07645fdd96&objectID=5585&indexName=bazaar_retailer_products). However, you can use any NVIDIA Jetson device to deploy this demo.
 
+Current only 3 different exercise types can be counted:
 
-The application is a pose estimation demo for exercise counting with YOLOv8. 
-It relies on YOLOv8-Pose.
-This document also describes how to deploy the algorithm to edge computing device 
-like [Jetson Orin NX](https://www.seeedstudio.com/reComputer-J4011-p-5585.html?queryID=7e0c2522ee08fd79748dfc07645fdd96&objectID=5585&indexName=bazaar_retailer_products).
+- Squats
+- Pushups
+- Situps
 
+However, I will keep updating this repo to add more exercises and also add the function of detecting the exercise type.
 
 ## Introduction
 
-The YOLOv8-Pose model can detect 17 key points in the human body, 
-then select discriminative key-points based on the characteristics of the exercise. 
-Calculate the angle between key-point lines, 
-when the angle reaches a certain threshold, the target can be considered to have completed a certain action.
-By utilizing the aforementioned mechanism, 
-it is possible to achieve remarkably fascinating *Exercise Counting* Application.
+The YOLOv8-Pose model can detect 17 key points in the human body, then select discriminative key-points based on the characteristics of the exercise. 
+Calculate the angle between key-point lines, when the angle reaches a certain threshold, the target can be considered to have completed a certain action.
+By utilizing the above-mentioned mechanism, it is possible to achieve an interesting *Exercise Counter* Application.
 
 ## Installation
 
-- For Windows/Ubuntu Desktop
+- **Step 1:** Flash JetPack OS to reComputer Jetson device [(Refer to here)](https://wiki.seeedstudio.com/reComputer_J4012_Flash_Jetpack/).
+
+- **Step 2:** Access the terminal of Jetson device, install pip and upgrade it
+
+```sh
+sudo apt update
+sudo apt install -y python3-pip
+pip3 install --upgrade pip
 ```
-# (1) Creating a conda virtual environment
-conda create -n yolov8 python=3.9
-conda activate yolov8
-# (2) Clone and install the ultralytics repository
-git clone https://github.com/ultralytics/ultralytics
+
+- **Step 3:** Clone the following repo
+
+```sh
+git clone https://github.com/ultralytics/ultralytics.git
+```
+
+- **Step 4:** Open requirements.txt
+
+```sh
 cd ultralytics
-pip install -e .
-# (3) Clone exercise counting demo
+vi requirements.txt
+```
+
+- **Step 5:** Edit the following lines. Here you need to press i first to enter editing mode. Press ESC, then type :wq to save and quit
+
+```sh
+# torch>=1.7.0
+# torchvision>=0.8.1
+```
+
+**Note:** torch and torchvision are excluded for now because they will be installed later.
+
+- **Step 6:** Install the necessary packages
+
+```sh
+pip3 install -e .
+```
+
+- **Step 7:** If there is an error in numpy version, install the required version of numpy
+
+```sh
+pip3 install numpy==1.20.3
+```
+
+- **Step 8:** Install PyTorch and Torchvision [(Refer to here)](https://wiki.seeedstudio.com/YOLOv8-DeepStream-TRT-Jetson/#install-pytorch-and-torchvision).
+
+- **Step 9:** Run the following command to make sure yolo is installed properly
+
+```sh
+yolo detect predict model=yolov8n.pt source='https://ultralytics.com/images/bus.jpg' 
+```
+
+- **Step 10:** Clone exercise counter demo
+
+```sh
 git clone https://github.com/yuyoujiang/exercise-counting-with-YOLOv8.git
 ```
 
-- For Jetson
-- - (1) Flash JetPack OS to edge device [(Refer to here)](https://wiki.seeedstudio.com/reComputer_J4012_Flash_Jetpack/).
-- - (2) Install Ultralytics.
-- - - Firstly, download the source code and unregister torch and torchvision from requirements.txt. [(Refer to here)](https://wiki.seeedstudio.com/YOLOv8-DeepStream-TRT-Jetson/#install-necessary-packages)
-- - - Then, install Ultralytics by this command: `pip install -e .`
-- - (3) Install PyTorch and Torchvision [(Refer to here)](https://wiki.seeedstudio.com/YOLOv8-DeepStream-TRT-Jetson/#install-pytorch-and-torchvision).
-- - - `pip3 install ultralytics` may install torch and torchvision, but they don't work properly on jetson. So we need to uninstall Torch and Torchvision first, and then refer to the above link to reinstall.
-- - - `yolo detect predict model=yolov8n.pt source='https://ultralytics.com/images/bus.jpg'` Please run the command here to ensure that yolo can work properly.
-- - (4) Clone exercise counting demo: `git clone https://github.com/yuyoujiang/exercise-counting-with-YOLOv8.git`. 
+## Prepare The Model File
 
+YOLOv8-pose pretrained pose models are PyTorch models and you can directly use them for inferencing on the Jetson device. However, to have a better speed, you can convert the PyTorch models to TensorRT optimized models by following below instructions.
 
-## Getting Started
+- **Step 1:** Download model weights in PyTorch format [(Refer to here)](https://docs.ultralytics.com/tasks/pose/#models).
 
-- Download favorite model weights [(Refer to here)](https://docs.ultralytics.com/tasks/pose/#models).
-- Prepare a video to be tested, such as [(Refer to here)](https://github.com/yuyoujiang/test_video).
-- Then run [demo.py](./demo.py) to view the counting results `python demo.py --model yolov8s-pose.pt`.
+- **Step 2:** Execute the following command to convert this PyTorch model into a TensorRT model 
 
+```sh
+# TensorRT FP32 export
+yolo export model=yolov8s-pose.pt format=engine device=0
+
+# TensorRT FP16 export
+yolo export model=yolov8s-pose.pt format=engine half=True device=0
+```
+
+**Tip:** [Click here](https://docs.ultralytics.com/modes/export) to learn more about yolo export 
+
+- **Step 3:** Prepare a video to be tested. [Here]() we have included sample videos for you to test
+
+## Let's Run It!
+
+To run the exercise counter, enter the following commands with the `exercise_type` as:
+
+- sit-up
+- pushup
+- squat
+
+### For video 
+
+```sh
+python3 demo.py --sport <exercise_type> --model yolov8s-pose.pt --show True --input <path_to_your_video>
+```
+
+### For webcam
+
+```sh
+python3 demo.py --sport <exercise_type> --model yolov8s-pose.pt --show True --input 0
+```
 
 ## References
 
