@@ -1,4 +1,6 @@
 # Exercise Counter with YOLOv8 on NVIDIA Jetson
+![ezgif com-optimize (1)](https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/d592ff9b-6bc2-4017-8731-cf408052f0dd)
+
 
 This is a pose estimation demo application for exercise counting with YOLOv8 using [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose) model. 
 
