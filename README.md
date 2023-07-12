@@ -1,7 +1,5 @@
 # Exercise Counter with YOLOv8 on NVIDIA Jetson
 
-![result 00_00_00-00_00_30](https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/d5657aa5-5a61-4451-9adb-7f9fbd395a13)
-
 This is a pose estimation demo application for exercise counting with YOLOv8 using [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose) model. 
 
 This has been tested and deployed on a [reComputer Jetson J4011](https://www.seeedstudio.com/reComputer-J4011-p-5585.html?queryID=7e0c2522ee08fd79748dfc07645fdd96&objectID=5585&indexName=bazaar_retailer_products). However, you can use any NVIDIA Jetson device to deploy this demo.
@@ -119,6 +117,7 @@ python3 demo.py --sport <exercise_type> --model yolov8s-pose.pt --show True --in
 ```sh
 python3 demo.py --sport <exercise_type> --model yolov8s-pose.pt --show True --input 0
 ```
+![result 00_00_00-00_00_30](https://github.com/yuyoujiang/exercise-counting-with-YOLOv8/assets/76863444/414e1cd1-ab7d-4ca6-91e4-c8a948fe55ae)
 
 ## References
 
