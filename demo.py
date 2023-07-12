@@ -152,10 +152,16 @@ def put_text(frame, exercise, count, fps, redio):
         (55, 104, 0), -1
     )
 
-    cv2.putText(
-        frame, f'Exercise: {exercise}', (int(30 * redio), int(50 * redio)), 0, 0.9 * redio,
-        (255, 255, 255), thickness=int(2 * redio), lineType=cv2.LINE_AA
-    )
+    if exercise in sport_list.keys():
+        cv2.putText(
+            frame, f'Exercise: {exercise}', (int(30 * redio), int(50 * redio)), 0, 0.9 * redio,
+            (255, 255, 255), thickness=int(2 * redio), lineType=cv2.LINE_AA
+        )
+    elif exercise == 'No Object':
+        cv2.putText(
+            frame, f'No Object', (int(30 * redio), int(50 * redio)), 0, 0.9 * redio,
+            (255, 255, 255), thickness=int(2 * redio), lineType=cv2.LINE_AA
+        )
     cv2.putText(
         frame, f'Count: {count}', (int(30 * redio), int(100 * redio)), 0, 0.9 * redio,
         (255, 255, 255), thickness=int(2 * redio), lineType=cv2.LINE_AA
@@ -169,8 +175,9 @@ def put_text(frame, exercise, count, fps, redio):
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='yolov8s-pose.pt', type=str, help='path to model weight')
-    parser.add_argument('--sport', default='squat', type=str, help='Currently supported "sit-up", "pushup" and "squat"')
-    parser.add_argument('--input', default="./inputs/squat.mp4", type=str, help='path to input video')
+    parser.add_argument('--sport', default='squat', type=str,
+                        help='Currently supported "sit-up", "pushup" and "squat"')
+    parser.add_argument('--input', default="0", type=str, help='path to input video')
     parser.add_argument('--save_dir', default=None, type=str, help='path to save output')
     parser.add_argument('--show', default=True, type=bool, help='show the result')
     args = parser.parse_args()
@@ -182,13 +189,14 @@ def main():
     args = parse_args()
     # Load the YOLOv8 model
     model = YOLO(args.model)
-    # Open the video file
+
+    # Open the video file or camera
     if args.input.isnumeric():
         cap = cv2.VideoCapture(int(args.input))
     else:
         cap = cv2.VideoCapture(args.input)
 
-    # For save result
+    # For save result video
     if args.save_dir is not None:
         save_dir = os.path.join(
             args.save_dir, args.sport,
@@ -217,8 +225,20 @@ def main():
 
             # Run YOLOv8 inference on the frame
             results = model(frame)
+
+            # Preventing errors caused by special scenarios
             if results[0].keypoints.shape[1] == 0:
-                print('No Object!')
+                if args.show:
+                    put_text(frame, 'No Object', counter,
+                             round(1000 / results[0].speed['inference'], 2), plot_size_redio)
+                    scale = 640 / max(frame.shape[0], frame.shape[1])
+                    show_frame = cv2.resize(frame, (0, 0), fx=scale, fy=scale)
+                    cv2.imshow("YOLOv8 Inference", show_frame)
+                if args.save_dir is not None:
+                    output.write(frame)
+                # Break the loop if 'q' is pressed
+                if cv2.waitKey(1) & 0xFF == ord("q"):
+                    break
                 continue
 
             # Get hyperparameters
@@ -251,7 +271,8 @@ def main():
             # annotated_frame = results[0].plot(boxes=False)
 
             # add relevant information to frame
-            put_text(annotated_frame, args.sport, counter, round(1000 / results[0].speed['inference'], 2),plot_size_redio)
+            put_text(
+                annotated_frame, args.sport, counter, round(1000 / results[0].speed['inference'], 2), plot_size_redio)
 
             # Display the annotated frame
             if args.show:
