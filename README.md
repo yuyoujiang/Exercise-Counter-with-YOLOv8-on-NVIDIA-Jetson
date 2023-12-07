@@ -3,6 +3,7 @@
 
 
 This is a pose estimation demo application for exercise counting with YOLOv8 using [YOLOv8-Pose](https://docs.ultralytics.com/tasks/pose) model. 
+Click here to see more [vision AI demo and project](https://www.seeedstudio.com/edge-ai/computer-vision).
 
 This has been tested and deployed on a [reComputer Jetson J4011](https://www.seeedstudio.com/reComputer-J4011-p-5585.html?queryID=7e0c2522ee08fd79748dfc07645fdd96&objectID=5585&indexName=bazaar_retailer_products). However, you can use any NVIDIA Jetson device to deploy this demo.
 
